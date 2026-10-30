@@ -1,0 +1,62 @@
+code_mantra/
+├── mix.exs                             # Application dependencies (Phoenix 1.8, Ash 3.0, Bandit)
+├── mix.lock
+├── README.md
+│
+├── config/                             # Environment configuration files
+│   ├── config.exs                      # Core App & Ash resource configuration
+│   ├── dev.exs                         # Local development database & endpoint settings
+│   ├── prod.exs                        # Production endpoint & release settings
+│   ├── runtime.exs                     # Environment variable overrides
+│   └── test.exs                        # Test environment suite settings
+│
+├── lib/
+│   ├── code_mantra/                    # Core BEAM Domain & Actor Engine
+│   │   ├── application.ex              # Root OTP Supervision Tree
+│   │   ├── repo.ex                     # Ecto PostgreSQL Repository
+│   │   │
+│   │   ├── actors/                     # The 6 Core BEAM Actor Daemons
+│   │   │   ├── client_socket.ex        # Actor 1: Ingress Gateway & WS Supervisor
+│   │   │   ├── evaluation_daemon.ex    # Actor 2: Language & AST Complexity Engine
+│   │   │   ├── progression_balancer.ex # Actor 3: Anti-Cheat (Shannon Entropy) & XP Engine
+│   │   │   ├── persistence_daemon.ex   # Actor 4: Base32 Runic State Flusher
+│   │   │   ├── dungeon_orchestrator.ex # Actor 5: Procedural Monster & Raid Boss Generator
+│   │   │   └── stream_animator.ex      # Actor 6: Canvas & Vector Renderer
+│   │   │
+│   │   └── domain/                     # Ash Framework Resources
+│   │       ├── player_profile.ex       # Player classes, paradigms, and level state
+│   │       ├── guild.ex                # Guild Citadels, Vault Gold, and Member Roles
+│   │       └── vendor_armory.ex        # Procedural weapons, items, and apothecary state
+│   │
+│   ├── code_mantra_web/                # Web Interface & Telemetry API
+│   │   ├── router.ex                   # Browser & API routes
+│   │   ├── endpoint.ex                 # Bandit HTTP server & WebSocket socket handlers
+│   │   ├── telemetry.ex                # App performance metrics
+│   │   │
+│   │   ├── controllers/                # REST / HTTP Endpoints
+│   │   │   └── telemetry_controller.ex # Fast-path IDE HTTP batch ingestion
+│   │   │
+│   │   ├── live/                       # Phoenix LiveView Modules
+│   │   │   ├── landing_live.ex         # Title Screen & Background Procedural World Crawl
+│   │   │   ├── about_live.ex           # System Manifesto & Creator Spotlight
+│   │   │   ├── stream_live.ex          # OBS & Observer Broadcast Overlay
+│   │   │   └── onboarding_live.ex      # IDE Setup & Token Import Ritual
+│   │   │
+│   │   └── components/                 # UI Components & Layouts
+│   │       ├── layouts/
+│   │       │   ├── app.html.heex
+│   │       │   └── root.html.heex
+│   │       └── core_components.ex      # Tailwind UI components & badges
+│   │
+│   └── code_mantra_web.ex              # Web boundary helper definitions
+│
+├── priv/                               # Static Assets & Database Migrations
+│   ├── repo/
+│   │   ├── migrations/                 # Ecto/Ash database migrations
+│   │   └── seeds.exs                   # Seed data for initial biomes & items
+│   └── static/                         # Images, fonts, and compiled JS/CSS
+│
+└── test/                               # Test Suite
+├── code_mantra/
+│   └── telemetry_validator_test.exs # Anti-cheat entropy & cadence unit tests
+└── test_helper.exs

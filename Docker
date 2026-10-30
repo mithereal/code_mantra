@@ -1,0 +1,71 @@
+# ==============================================================================
+# STAGE 1: BUILD ENVIRONMENT
+# ==============================================================================
+FROM hexpm/elixir:1.16.2-erlang-26.2.3-alpine-3.19.1 AS builder
+
+# Install build dependencies (openssl, build-base required for C-NIFs & crypto)
+RUN apk add --no-libc-dev --no-cache \
+    build-base \
+    git \
+    openssl-dev \
+    curl
+
+WORKDIR /app
+
+# Install Hex + Rebar
+RUN mix local.hex --force && \
+    mix local.rebar --force
+
+# Set build environment
+ENV MIX_ENV=prod
+
+# Install application dependencies
+COPY mix.exs mix.lock ./
+RUN mix deps.get --only $MIX_ENV
+RUN mix deps.compile
+
+# Copy application assets and source code
+COPY config config
+COPY lib lib
+COPY priv priv
+
+# Compile application and assets
+RUN mix compile
+
+# Build standalone release
+RUN mix release
+
+# ==============================================================================
+# STAGE 2: RUNTIME ENVIRONMENT
+# ==============================================================================
+FROM alpine:3.19.1 AS app
+
+# Install runtime dependencies (OpenSSL, ncurses, libstdc++, libgcc)
+RUN apk add --no-cache \
+    libstdc++ \
+    openssl \
+    ncurses-libs \
+    ca-certificates \
+    bash \
+    curl
+
+WORKDIR /app
+
+# Copy the compiled release from the builder stage
+COPY --from=builder /app/_build/prod/rel/code_mantra ./
+
+# Set environment defaults
+ENV MIX_ENV=prod \
+    PORT=4000 \
+    PHX_SERVER=true \
+    SHELL=/bin/bash
+
+# Expose ports:
+# 4000  - Phoenix HTTP / WebSocket (DeveloperSocket & Channels)
+# 45892 - libcluster UDP Multicast / BEAM Gossip Discovery
+# 4369  - EPMD (Erlang Port Mapper Daemon)
+# 9001  - Distributed Erlang Node Inter-Communication
+EXPOSE 4000 45892 4369 9001
+
+# Entrypoint script or direct release boot
+CMD ["/app/bin/code_mantra", "start"]
