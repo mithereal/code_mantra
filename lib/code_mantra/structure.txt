@@ -51,7 +51,7 @@ code_mantra/
 │   │   │   ├── monolith_drop_2.ex  # Technical debt monitoring and world boss spawning
 │   │   │   ├── language_classifier.ex # Classifies repos across mainstream, Void, and Relics
 │   │   │   ├── monster_generator.ex# Procedurally generates code-smell monsters
-│   │   │   ├── playeractor.ex      # Telemetry consumer advancing player avatars
+│   │   │   ├── player_actor.ex      # Telemetry consumer advancing player avatars
 │   │   │   ├── pr_merge_handler.ex # PR merge ascension pipeline and loot distribution
 │   │   │   ├── prompt_combo_engine.ex # Natural language prompt to combat spell parser
 │   │   │   └── ancient_relic_ritual.ex # Fortran/Lisp/Algol ritual blessings & curses
