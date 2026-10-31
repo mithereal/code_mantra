@@ -2,7 +2,7 @@ defmodule CodeMantra.Actors.ClientSocket do
   @moduledoc """
   Actor 1: CLIENT_SOCKET GATEWAY.
   Monitors active WebSocket channels from IDE clients (VS Code/Neovim)
-  and dispatches high-frequency 250ms sliding window telemetry batches.
+  and dispatches high-frequency telemetry batches.
   """
   use GenServer
   require Logger
@@ -44,9 +44,11 @@ defmodule CodeMantra.Actors.ClientSocket do
   @impl true
   def handle_info({:DOWN, _ref, :process, pid, _reason}, state) do
     {client_info, updated_sockets} = Map.pop(state.sockets, pid)
+
     if client_info do
       Logger.info("[CLIENT_SOCKET] IDE Disconnected: User #{client_info.user_id}")
     end
+
     {:noreply, %{state | sockets: updated_sockets}}
   end
 end

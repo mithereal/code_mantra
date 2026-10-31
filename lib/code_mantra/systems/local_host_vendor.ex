@@ -14,7 +14,8 @@ defmodule CodeMantra.Systems.LocalHostVendor do
       max_level: 5,
       class_restriction: :web_rogue,
       stats: %{alpha_numeric_xp_bonus: 0.2, timeout_reduction: true},
-      description: "Boosts alpha-numeric typing base value by +0.2 XP per stroke. Decreases network timeout windows."
+      description:
+        "Boosts alpha-numeric typing base value by +0.2 XP per stroke. Decreases network timeout windows."
     },
     "blue_light_shield" => %{
       name: "Blue-Light Mitigation Shield",
@@ -44,7 +45,8 @@ defmodule CodeMantra.Systems.LocalHostVendor do
       max_level: 45,
       class_restriction: :web_illusionist,
       stats: %{dodge_multiplier: 1.50},
-      description: "Allows your character to alter visual aspect ratios, multiplying dodge percentages by an additional 1.5x."
+      description:
+        "Allows your character to alter visual aspect ratios, multiplying dodge percentages by an additional 1.5x."
     },
     "splunk_monocle" => %{
       name: "Splunk True-Sight Monocle",
@@ -54,7 +56,8 @@ defmodule CodeMantra.Systems.LocalHostVendor do
       max_level: 60,
       class_restriction: :all,
       stats: %{reveal_memory_leaks: true},
-      description: "Permanently highlights hidden architecture memory leak caches within multi-tiered repository dungeons."
+      description:
+        "Permanently highlights hidden architecture memory leak caches within multi-tiered repository dungeons."
     }
   }
 
@@ -88,6 +91,10 @@ defmodule CodeMantra.Systems.LocalHostVendor do
   end
 
   defp valid_class?(:all, _user_class), do: true
-  defp valid_class?(allowed_class, user_class) when is_atom(allowed_class), do: allowed_class == user_class
-  defp valid_class?(allowed_list, user_class) when is_list(allowed_list), do: user_class in allowed_list
+
+  defp valid_class?(allowed_class, user_class) when is_atom(allowed_class),
+    do: allowed_class == user_class
+
+  defp valid_class?(allowed_list, user_class) when is_list(allowed_list),
+    do: user_class in allowed_list
 end

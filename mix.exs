@@ -57,12 +57,12 @@ defmodule CodeMantra.MixProject do
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
       {:heroicons,
-        github: "tailwindlabs/heroicons",
-        tag: "v2.2.0",
-        sparse: "optimized",
-        app: false,
-        compile: false,
-        depth: 1},
+       github: "tailwindlabs/heroicons",
+       tag: "v2.2.0",
+       sparse: "optimized",
+       app: false,
+       compile: false,
+       depth: 1},
 
       # HTTP & Utilities
       {:swoosh, "~> 1.16"},

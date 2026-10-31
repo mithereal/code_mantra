@@ -3,54 +3,54 @@ defmodule CodeMantra.Domain.Guild do
   Ash Resource defining Guild Citadels, collective vault gold, and team perks.
   """
   use Ash.Resource,
-      data_layer: AshPostgres.DataLayer
+    data_layer: AshPostgres.DataLayer
 
   postgres do
-    table "guilds"
-    repo CodeMantra.Repo
+    table("guilds")
+    repo(CodeMantra.Repo)
   end
 
   actions do
-    defaults [:read, :destroy]
+    defaults([:read, :destroy])
 
     create :found do
-      accept [:name, :tag]
+      accept([:name, :tag])
     end
 
     update :deposit_vault_gold do
-      argument :amount, :integer, allow_nil?: false
-      change atomic_update(:vault_gold, expr(vault_gold + ^arg(:amount)))
+      argument(:amount, :integer, allow_nil?: false)
+      change(atomic_update(:vault_gold, expr(vault_gold + ^arg(:amount))))
     end
   end
 
   attributes do
-    uuid_primary_key :id
+    uuid_primary_key(:id)
 
     attribute :name, :string do
-      allow_nil? false
+      allow_nil?(false)
     end
 
     attribute :tag, :string do
-      allow_nil? false
-      constraints [min_length: 2, max_length: 4]
+      allow_nil?(false)
+      constraints(min_length: 2, max_length: 4)
     end
 
     attribute :level, :integer do
-      default 1
+      default(1)
     end
 
     attribute :total_xp, :integer do
-      default 0
+      default(0)
     end
 
     attribute :vault_gold, :integer do
-      default 0
+      default(0)
     end
 
     timestamps()
   end
 
   identities do
-    identity :unique_tag, [:tag]
+    identity(:unique_tag, [:tag])
   end
 end

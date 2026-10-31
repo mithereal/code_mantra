@@ -51,11 +51,12 @@ defmodule CodeMantraWeb.OnboardingLive do
     ~H"""
     <div class="min-h-screen bg-slate-950 text-slate-100 font-mono flex items-center justify-center p-6">
       <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl space-y-8 relative overflow-hidden">
-
-        <!-- Top Accent Bar -->
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-cyan-500"></div>
-
-        <!-- Header -->
+        
+    <!-- Top Accent Bar -->
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-cyan-500">
+        </div>
+        
+    <!-- Header -->
         <div class="text-center space-y-2">
           <h1 class="text-3xl font-extrabold tracking-wider text-amber-400">🛡️ CODE::MANTRA</h1>
           <p class="text-xs text-slate-400">DARK-FANTASY RPG DEVELOPMENT PLATFORM</p>
@@ -72,7 +73,8 @@ defmodule CodeMantraWeb.OnboardingLive do
 
         <%= if @connecting do %>
           <div class="py-12 text-center space-y-4">
-            <div class="inline-block w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+            <div class="inline-block w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin">
+            </div>
             <p class="text-xs text-amber-300 font-bold tracking-wider animate-pulse">
               INGESTING WAKATIME CODING HOURS & LANGUAGES...
             </p>

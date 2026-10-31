@@ -18,18 +18,30 @@ defmodule CodeMantra.Application do
       CodeMantraWeb.Endpoint,
 
       # 3. Core Engine Actor Processes
-      CodeMantra.Actors.ClientSocket,       # Actor 1: IDE WebSocket Gateway
-      CodeMantra.Actors.EvaluationDaemon,   # Actor 2: Polyglot Evaluation & Procedural Synthesis
-      CodeMantra.Actors.ProgressionBalancer,# Actor 3: Shannon Entropy & XP/Gold Balancer
-      CodeMantra.Actors.PersistenceDaemon,  # Actor 4: PostgreSQL Checkpoints & Runic Archive
-      CodeMantra.Actors.DungeonOrchestrator,# Actor 5: Monorepo Raid Coordinator
-      CodeMantra.Actors.MonolithDrop,       # Actor 6: World Boss Event Daemon
-      CodeMantra.Actors.StreamAnimator,     # Stream Frame Animator
-      CodeMantra.Actors.MonorepoTracker,    # Corporate Git Fracture Monitor
-      CodeMantra.Actors.BossEncounterEngine,# Turn-Based Combat State Engine
-      CodeMantra.Actors.CombatOrchestrator,  # Merge Conflict Encounter Handler
-      {Registry, keys: :unique, name: CodeMantra.RepoRegistry, partitions: System.schedulers_online()},
-      {Phoenix.PubSub, name: CodeMantra.PubSub, adapter: Phoenix.PubSub.PG2}
+      # Actor 1: IDE WebSocket Gateway
+      CodeMantra.Actors.ClientSocket,
+      # Actor 2: Polyglot Evaluation & Procedural Synthesis
+      CodeMantra.Actors.EvaluationDaemon,
+      # Actor 3: Shannon Entropy & XP/Gold Balancer
+      CodeMantra.Actors.ProgressionBalancer,
+      # Actor 4: PostgreSQL Checkpoints & Runic Archive
+      CodeMantra.Actors.PersistenceDaemon,
+      # Actor 5: Monorepo Raid Coordinator
+      CodeMantra.Actors.DungeonOrchestrator,
+      # Actor 6: World Boss Event Daemon
+      CodeMantra.Actors.MonolithDrop,
+      # Stream Frame Animator
+      CodeMantra.Actors.StreamAnimator,
+      # Corporate Git Fracture Monitor
+      CodeMantra.Actors.MonorepoTracker,
+      # Turn-Based Combat State Engine
+      CodeMantra.Actors.BossEncounterEngine,
+      # Merge Conflict Encounter Handler
+      CodeMantra.Actors.CombatOrchestrator,
+      {Registry,
+       keys: :unique, name: CodeMantra.RepoRegistry, partitions: System.schedulers_online()},
+      {Phoenix.PubSub, name: CodeMantra.PubSub, adapter: Phoenix.PubSub.PG2},
+      CodeMantra.Dungeon.MonolithDrop
     ]
 
     opts = [strategy: :one_for_one, name: CodeMantra.Supervisor]

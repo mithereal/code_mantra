@@ -1,41 +1,86 @@
 defmodule CodeMantra.Actors.MonorepoTracker do
   @moduledoc """
-  Background telemetry monitoring agent for corporate Monorepo dungeon layers.
-  Listens for git fractures, branch lockouts, and shared repository bounties.
+  Actor 10: MONOREPO TRACKER.
+  Monitors package dependency graphs, tracks cross-module build status,
+  and coordinates real-time synchronization across monorepo services.
   """
   use GenServer
   require Logger
 
-  def start_link(_opts) do
-    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+  @sync_interval 5_000
+
+  # --- Client API ---
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
+  def register_package(package_id, metadata) do
+    GenServer.call(__MODULE__, {:register_package, package_id, metadata})
+  end
+
+  def update_build_status(package_id, status) do
+    GenServer.cast(__MODULE__, {:update_status, package_id, status})
+  end
+
+  def get_monorepo_graph do
+    GenServer.call(__MODULE__, :get_graph)
+  end
+
+  # --- Server Callbacks ---
   @impl true
-  def init(state) do
-    Phoenix.PubSub.subscribe(CodeMantra.PubSub, "monorepo_threat_feed")
-    Logger.info("📡 [MONOREPO_TRACKER] Initialized monitoring agent for corporate Monorepo layers.")
+  def init(_opts) do
+    state = %{packages: %{}}
+    Logger.info("[MONOREPO_TRACKER] Initialized and monitoring monorepo package network.")
+    schedule_sync()
     {:ok, state}
   end
 
   @impl true
-  def handle_info({:git_fracture_detected, details}, state) do
-    Logger.error("🚨 [THREAT ALERT]: Teammate push threw validation errors! #{details.repo} -> #{details.branch}")
-    broadcast_alert(:git_fracture, details)
-    {:noreply, state}
+  def handle_call({:register_package, package_id, metadata}, _from, state) do
+    Logger.info("📦 [MONOREPO_TRACKER] Registered package: #{package_id}")
+
+    package_entry = Map.merge(%{status: :healthy, last_updated: System.system_time(:second)}, metadata)
+    updated_packages = Map.put(state.packages, package_id, package_entry)
+
+    {:reply, {:ok, package_id}, %{state | packages: updated_packages}}
   end
 
   @impl true
-  def handle_info({:merge_lock_event, details}, state) do
-    Logger.error("🔒 [MERGE LOCK]: Global Merge Conflict locked down protected branch #{details.branch}!")
-    broadcast_alert(:merge_lock, details)
+  def handle_call(:get_graph, _from, state) do
+    {:reply, state.packages, state}
+  end
+
+  @impl true
+  def handle_cast({:update_status, package_id, status}, state) do
+    case Map.get(state.packages, package_id) do
+      nil ->
+        Logger.warning("[MONOREPO_TRACKER] Attempted to update unknown package: #{package_id}")
+        {:noreply, state}
+
+      package ->
+        updated_package = %{package | status: status, last_updated: System.system_time(:second)}
+        updated_packages = Map.put(state.packages, package_id, updated_package)
+
+        Logger.info("🔄 [MONOREPO_TRACKER] Package #{package_id} status updated to: #{status}")
+
+        CodeMantraWeb.Endpoint.broadcast!("monorepo:network", "package_status_changed", %{
+          package_id: package_id,
+          status: status
+        })
+
+        {:noreply, %{state | packages: updated_packages}}
+    end
+  end
+
+  @impl true
+  def handle_info(:sync_tick, state) do
+    # Periodic background verification of monorepo package tree health
+    schedule_sync()
     {:noreply, state}
   end
 
-  defp broadcast_alert(type, details) do
-    Phoenix.PubSub.broadcast(
-      CodeMantra.PubSub,
-      "world_crawl_feed",
-      {:monorepo_alert, %{type: type, payload: details}}
-    )
+  # --- Internal Helpers ---
+  defp schedule_sync do
+    Process.send_after(self(), :sync_tick, @sync_interval)
   end
 end

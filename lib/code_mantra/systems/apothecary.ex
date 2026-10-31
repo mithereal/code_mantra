@@ -20,14 +20,16 @@ defmodule CodeMantra.Systems.Apothecary do
       cost: 300,
       min_level: 6,
       effect: :purge_memory_leaks,
-      description: "Cures all active memory leak status ailments. Converts flushed chunks to gold."
+      description:
+        "Cures all active memory leak status ailments. Converts flushed chunks to gold."
     },
     "pipeline_salt" => %{
       name: "Pipeline Defibrillator Salt",
       cost: 500,
       min_level: 16,
       effect: :purge_ci_shame,
-      description: "Instantly purges 'Shame of the Red Build' CI penalty without running validation."
+      description:
+        "Instantly purges 'Shame of the Red Build' CI penalty without running validation."
     },
     "hot_reload_catalyst" => %{
       name: "Hot-Reload Catalyst",

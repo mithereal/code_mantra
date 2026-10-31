@@ -31,6 +31,7 @@ defmodule CodeMantraWeb.DungeonChannel do
           status: status,
           striker: user_id
         })
+
         {:reply, {:ok, %{hp: updated_hp, status: status}}, socket}
 
       error ->
@@ -43,9 +44,15 @@ defmodule CodeMantraWeb.DungeonChannel do
     repo_id = socket.assigns.repo_id
     defender_id = socket.assigns.user_id
 
-    case CodeMantra.Actors.DungeonOrchestrator.deploy_class_shield(repo_id, defender_id, target_id, String.to_atom(class_type)) do
+    case CodeMantra.Actors.DungeonOrchestrator.deploy_class_shield(
+           repo_id,
+           defender_id,
+           target_id,
+           String.to_atom(class_type)
+         ) do
       {:ok, shield_type} ->
         {:reply, {:ok, %{shield: shield_type}}, socket}
+
       _ ->
         {:reply, {:error, :shield_failed}, socket}
     end

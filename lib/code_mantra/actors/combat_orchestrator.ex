@@ -1,54 +1,105 @@
 defmodule CodeMantra.Actors.CombatOrchestrator do
   @moduledoc """
-  Manages turn-based encounters against World Boss Merge Conflicts,
-  evaluating class evasions, strict-type counterstrikes, and transaction payouts.
+  Actor 8: COMBAT ORCHESTRATOR.
+  Manages real-time tactical combat sessions, turn queues, spell execution,
+  and status effect ticks across connected IDE clients.
   """
   use GenServer
   require Logger
 
-  def start_link(_opts) do
-    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+  @tick_interval 1_000
+
+  # --- Client API ---
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  def initiate_conflict_encounter(user_id, file_path, class_type) do
-    GenServer.call(__MODULE__, {:engage, user_id, file_path, class_type})
+  def init_combat(session_id, participants) do
+    GenServer.call(__MODULE__, {:init_combat, session_id, participants})
+  end
+
+  def submit_action(session_id, actor_id, action_payload) do
+    GenServer.cast(__MODULE__, {:submit_action, session_id, actor_id, action_payload})
+  end
+
+  def get_session_state(session_id) do
+    GenServer.call(__MODULE__, {:get_state, session_id})
+  end
+
+  # --- Server Callbacks ---
+  @impl true
+  def init(_opts) do
+    state = %{sessions: %{}}
+    Logger.info("[COMBAT_ORCHESTRATOR] Initialized and ready for tactical code combat.")
+    schedule_tick()
+    {:ok, state}
   end
 
   @impl true
-  def init(state), do: {:ok, state}
+  def handle_call({:init_combat, session_id, participants}, _from, state) do
+    Logger.info("⚔️ [COMBAT_ORCHESTRATOR] Initializing combat session #{session_id} with #{length(participants)} participants.")
+
+    session_data = %{
+      session_id: session_id,
+      participants: Map.new(participants, fn p -> {p.id, Map.merge(%{hp: 100, max_hp: 100, status: :active, effects: []}, p)} end),
+      turn_queue: Enum.map(participants, & &1.id),
+      current_turn: List.first(participants)[:id],
+      status: :active
+    }
+
+    updated_sessions = Map.put(state.sessions, session_id, session_data)
+    broadcast_combat_state(session_data)
+
+    {:reply, {:ok, session_id}, %{state | sessions: updated_sessions}}
+  end
 
   @impl true
-  def handle_call({:engage, user_id, file_path, class_type}, _from, state) do
-    Logger.error("[COMBAT LOG]: ENTERING DUNGEON LAYER: #{file_path}")
-    Logger.error("[COMBAT INITIATED]: THE UNBRIDLED MERGE CONFLICT HAS AWOKEN.")
+  def handle_call({:get_state, session_id}, _from, state) do
+    session = Map.get(state.sessions, session_id)
+    {:reply, session, state}
+  end
 
-    boss_damage_mitigated = evaluate_class_defense(class_type)
-    encounter_result = evaluate_counterstrike(class_type)
+  @impl true
+  def handle_cast({:submit_action, session_id, actor_id, action_payload}, state) do
+    case Map.get(state.sessions, session_id) do
+      %{status: :active, current_turn: ^actor_id} = session ->
+        action_type = Map.get(action_payload, :type) || Map.get(action_payload, "type", :strike)
+        power = Map.get(action_payload, :power) || Map.get(action_payload, "power", 15)
 
-    if encounter_result == :success do
-      xp_awarded = 4500
-      gold_awarded = 320
+        Logger.info("⚡ [COMBAT_ORCHESTRATOR] Actor #{actor_id} executed #{action_type} with power #{power} in session #{session_id}")
 
-      CodeMantra.Actors.PersistenceDaemon.queue_delta(user_id, %{xp: xp_awarded, gold: gold_awarded})
+        # Rotate turn queue
+        updated_queue = List.delete(session.turn_queue, actor_id) ++ [actor_id]
+        next_turn = List.first(updated_queue)
 
-      Logger.info("[SUCCESS]: Compilation completed with 0 errors.")
-      Logger.info("» [CRITICAL STRIKE]: 2x Base Damage applied! Boss Defeated!")
+        updated_session = %{session | turn_queue: updated_queue, current_turn: next_turn}
+        broadcast_combat_state(updated_session)
 
-      {:reply, {:victory, %{xp: xp_awarded, gold: gold_awarded}}, state}
-    else
-      {:reply, {:defeat, boss_damage_mitigated}, state}
+        {:noreply, %{state | sessions: Map.put(state.sessions, session_id, updated_session)}}
+
+      _ ->
+        Logger.warning("[COMBAT_ORCHESTRATOR] Rejected action from #{actor_id}: not their turn or inactive session.")
+        {:noreply, state}
     end
   end
 
-  defp evaluate_class_defense(:web_rogue) do
-    Logger.info("» [PASSIVE]: Web Rogue +20% Evasion activated! Stale-State Blast evaded cleanly.")
-    :evaded
+  @impl true
+  def handle_info(:tick, state) do
+    # Periodic tick to process status effects or turn timeouts across active sessions
+    schedule_tick()
+    {:noreply, state}
   end
-  defp evaluate_class_defense(_), do: :hit
 
-  defp evaluate_counterstrike(:web_rogue) do
-    Logger.info("» Casts: [Strict-Type Counterstrike] -- tsc --noEmit executed.")
-    :success
+  # --- Internal Helpers ---
+  defp schedule_tick do
+    Process.send_after(self(), :tick, @tick_interval)
   end
-  defp evaluate_counterstrike(_), do: :success
+
+  defp broadcast_combat_state(session) do
+    CodeMantraWeb.Endpoint.broadcast!("combat:#{session.session_id}", "combat_state_update", %{
+      current_turn: session.current_turn,
+      participants: session.participants,
+      status: session.status
+    })
+  end
 end

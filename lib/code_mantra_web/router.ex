@@ -14,6 +14,17 @@ defmodule CodeMantraWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :github_webhooks do
+    plug :accepts, ["json"]
+    plug CodeMantraWeb.Plugs.VerifyGithubSignature
+  end
+
+  scope "/api/webhooks", CodeMantraWeb do
+    pipe_through :github_webhooks
+
+    post "/github", GithubWebhookController, :handle_webhook
+  end
+
   scope "/", CodeMantraWeb do
     pipe_through :browser
 

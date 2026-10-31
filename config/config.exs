@@ -61,16 +61,39 @@ config :logger, :default_formatter,
 config :phoenix, :json_library, Jason
 
 config :libcluster,
-       topologies: [
-         code_mantra_cluster: [
-           strategy: Cluster.Strategy.Gossip,
-           config: [
-             port: 45892,
-             multicast_addr: "239.255.255.250",
-             secret: "your_cluster_secret_key"
-           ]
-         ]
-       ]
+  topologies: [
+    code_mantra_cluster: [
+      strategy: Cluster.Strategy.Gossip,
+      config: [
+        port: 45892,
+        multicast_addr: "239.255.255.250",
+        secret: "your_cluster_secret_key"
+      ]
+    ]
+  ]
+
+config :code_mantra, Oban,
+  engine: Oban.Engines.Basic,
+  queues: [default: 10, scheduled: 5],
+  plugins: [
+    {Oban.Plugins.Cron,
+     exprs: [
+       # Runs at 00:00 on the 1st day of every month
+       {"0 0 1 * *", CodeMantra.Workers.LanguageRankScannerWorker}
+     ]}
+  ],
+  repo: CodeMantra.Repo
+
+config :code_mantra, Oban,
+  repo: CodeMantra.Repo,
+  plugins: [
+    {Oban.Plugins.Cron,
+     crontab: [
+       # Runs weekly at midnight on Sunday
+       {"0 0 * * 0", CodeMantra.Workers.RankRebalancer}
+     ]}
+  ],
+  queues: [default: 10]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

@@ -52,6 +52,22 @@
       <excludeFolder url="file://$MODULE_DIR$/deps" />
       <excludeFolder url="file://$MODULE_DIR$/doc" />
       <excludeFolder url="file://$MODULE_DIR$/logs" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/ash" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/ash_phoenix" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/ash_postgres" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/ash_sql" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/crux" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/ets" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/iterex" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/libcluster" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/multigraph" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/reactor" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/spark" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/splode" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/stream_data" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/yamerl" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/yaml_elixir" />
+      <excludeFolder url="file://$MODULE_DIR$/_build/dev/lib/ymlr" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="phoenix" level="project" />
@@ -150,5 +166,40 @@
     <orderEntry type="library" name="ash_postgres" level="project" />
     <orderEntry type="library" name="ash_phoenix" level="project" />
     <orderEntry type="library" name="libcluster" level="project" />
+    <orderEntry type="library" name="spark" level="project" />
+    <orderEntry type="library" name="ets" level="project" />
+    <orderEntry type="library" name="reactor" level="project" />
+    <orderEntry type="library" name="splode" level="project" />
+    <orderEntry type="library" name="crux" level="project" />
+    <orderEntry type="library" name="picosat_elixir" level="project" />
+    <orderEntry type="library" name="simple_sat" level="project" />
+    <orderEntry type="library" name="eflame" level="project" />
+    <orderEntry type="library" name="ex_check" level="project" />
+    <orderEntry type="library" name="sobelow" level="project" />
+    <orderEntry type="library" name="git_ops" level="project" />
+    <orderEntry type="library" name="mix_audit" level="project" />
+    <orderEntry type="library" name="tz" level="project" />
+    <orderEntry type="library" name="ash_sql" level="project" />
+    <orderEntry type="library" name="ecto_dev_logger" level="project" />
+    <orderEntry type="library" name="mix_test_interactive" level="project" />
+    <orderEntry type="library" name="inertia" level="project" />
+    <orderEntry type="library" name="makeup_html" level="project" />
+    <orderEntry type="library" name="exvcr" level="project" />
+    <orderEntry type="library" name="sourceror" level="project" />
+    <orderEntry type="library" name="elixir_sense" level="project" />
+    <orderEntry type="library" name="ex_unit_notifier" level="project" />
+    <orderEntry type="library" name="earmark" level="project" />
+    <orderEntry type="library" name="iterex" level="project" />
+    <orderEntry type="library" name="multigraph" level="project" />
+    <orderEntry type="library" name="yaml_elixir" level="project" />
+    <orderEntry type="library" name="ymlr" level="project" />
+    <orderEntry type="library" name="doctor" level="project" />
+    <orderEntry type="library" name="doctest_formatter" level="project" />
+    <orderEntry type="library" name="styler" level="project" />
+    <orderEntry type="library" name="usage_rules" level="project" />
+    <orderEntry type="library" name="faker" level="project" />
+    <orderEntry type="library" name="ssl_verify_fun" level="project" />
+    <orderEntry type="library" name="tidewave" level="project" />
+    <orderEntry type="library" name="yamerl" level="project" />
   </component>
 </module>

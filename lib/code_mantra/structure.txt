@@ -1,0 +1,103 @@
+code_mantra/
+├── config/
+│   ├── config.exs                  # Master configuration (Oban, Logger, Libcluster, endpoints)
+│   ├── dev.exs
+│   ├── prod.exs
+│   └── test.exs
+├── lib/
+│   ├── code_mantra.ex              # Root application module
+│   ├── code_mantra/
+│   │   ├── application.ex          # Master OTP Supervision Tree (Repo, PubSub, GenServers)
+│   │   ├── repo.ex                 # Ecto Repo for PostgreSQL
+│   │   ├── mailer.ex               # Swoosh mailer integration
+│   │   ├── shared_utils.ex         # Deduplicated math, Shannon entropy, and telemetry validation
+│   │   │
+│   │   ├── actors/                 # Real-time BEAM GenServer Actors & Daemons
+│   │   │   ├── client_socket.ex    # Actor 1: IDE WebSocket Gateway
+│   │   │   ├── evaluation_daemon.ex# Actor 2: Procedural Title & Rank Synthesis
+│   │   │   ├── progression_balancer.ex # Actor 3: Anti-Cheat Entropy & XP/Gold Balancer
+│   │   │   ├── persistence_daemon.ex # Actor 4: PostgreSQL Checkpoint & Runic Archiver
+│   │   │   ├── dungeon_orchestrator.ex # Actor 5: Monorepo Raid & Branch Hazard Engine
+│   │   │   ├── monolith_drop.ex    # Actor 6: World Boss Event & Technical Debt Monitor
+│   │   │   ├── boss_encounter_engine.ex # Turn-Based Combat State Loop (World Bosses)
+│   │   │   ├── combat_orchestrator.ex  # Encounter resolution, evasions, and payouts
+│   │   │   ├── stream_animator.ex  # 10 FPS world vector movement animator for overlays
+│   │   │   ├── monorepo_tracker.ex # Corporate git fracture & branch lockout listener
+│   │   │   └── repo_supervisor.ex  # Partitioned dynamic repository registry & supervisor
+│   │   │
+│   │   ├── domain/                 # Ash Resources for Gamification & Economy
+│   │   │   ├── player_profile.ex   # Developer identity, paradigms, cumulative XP & gold
+│   │   │   ├── guild.ex            # Guild citadels, vaults, and team perks
+│   │   │   ├── armory_item.ex      # Procedurally forged weapons, staves, and gear
+│   │   │   ├── skill_node.ex       # Unlockable skill tree perks purchased with gold
+│   │   │   ├── shared_rank.ex      # Archived procedurally generated ranks for inheritance
+│   │   │   ├── monolith_king.ex    # Global technical debt world boss tracking
+│   │   │   └── raid_encounter.ex   # Active/defeated raid boss states
+│   │   │
+│   │   ├── dungeon/                # 16-bit Zelda-Style Roguelike Game Engine
+│   │   │   ├── room.ex             # Procedural dungeon room & grid generator
+│   │   │   ├── pathfinder.ex       # A* pathfinding for monster AI tracking
+│   │   │   ├── navigator.ex        # Entity collision detection and movement
+│   │   │   ├── branch_dungeon_actor.ex # Git Branch Dungeon mapping issues to chambers
+│   │   │   ├── boss_encounter_engine_2.ex # Real-time issue & world boss combat loop
+│   │   │   ├── boss_engine.ex      # Transforms GitHub webhook PR payloads into boss fights
+│   │   │   ├── difficulty_scaler.ex# Scales boss HP for corporate vs. open-source realms
+│   │   │   ├── dungeon_actor.ex    # Room state & real-time PubSub broadcast actor
+│   │   │   ├── dungeon_supervisor.ex # Dynamic supervisor for branch dungeons
+│   │   │   ├── editor_buffs.ex     # Editor-specific passive traits (Neovim, VS Code, etc.)
+│   │   │   ├── familiar_actor.ex   # AI familiar state, level progression, & corruption
+│   │   │   ├── guru.ex             # NPC dialogue, refactoring quests, & error translation
+│   │   │   ├── item_generator.ex   # Procedural weapon and armor generators
+│   │   │   ├── monolith_drop_2.ex  # Technical debt monitoring and world boss spawning
+│   │   │   ├── language_classifier.ex # Classifies repos across mainstream, Void, and Relics
+│   │   │   ├── monster_generator.ex# Procedurally generates code-smell monsters
+│   │   │   ├── playeractor.ex      # Telemetry consumer advancing player avatars
+│   │   │   ├── pr_merge_handler.ex # PR merge ascension pipeline and loot distribution
+│   │   │   ├── prompt_combo_engine.ex # Natural language prompt to combat spell parser
+│   │   │   └── ancient_relic_ritual.ex # Fortran/Lisp/Algol ritual blessings & curses
+│   │   │
+│   │   ├── engine/                 # Mantra & Code Incantation Parser
+│   │   │   └── mantra_parser/
+│   │   │       └── incantation.ex  # Parses source files for `@mantra` ritual blocks
+│   │   │
+│   │   ├── gamification/           # Progression, Auras, and Cross-Realm Bounties
+│   │   │   ├── flow_state.ex       # Evaluates uninterrupted IDE duration for auras
+│   │   │   ├── familiar_cosmetics.ex # AI familiar evolutionary forms and skins
+│   │   │   └── mercenary_reward_engine.ex # Cross-realm bounty distributions
+│   │   │
+│   │   ├── identity/               # Password Tokens, Profiles, & Security
+│   │   │   ├── player_profile.ex   # Ash Resource for persistent developer identity
+│   │   │   ├── guru.ex             # HMAC-SHA256 signature token packer/unpacker
+│   │   │   ├── king.ex             # Telemetry aggregator for the Priest
+│   │   │   ├── priest.ex           # Faxanadu-style compressed password generator
+│   │   │   ├── mantra.ex           # Signed developer state token generator/parser
+│   │   │   └── rank_calculator.ex  # Faxanadu-style ranks and King audience verification
+│   │   │
+│   │   ├── intelligence/           # AI Semantic Query Engines
+│   │   │   └── oracle.ex           # Code audit, AST diff analysis, and health forecasts
+│   │   │
+│   │   ├── ledger/                 # Immutable Payroll and Loot Logs
+│   │   │   ├── loot_ledger.ex      # Ash Resource audit log for pay/PTO bonuses
+│   │   │   └── loot_box_bridge.ex  # Bridges in-game achievements to real-world payroll
+│   │   │
+│   │   ├── realms/                 # Multi-Tenant Corporate & Open-Source Realms
+│   │   │   └── corporate_realm.ex  # Tenant-isolated enterprise repository resource
+│   │   │
+│   │   ├── reports/                # Executive Analytics & File Exporters
+│   │   │   └── exporter.ex         # Formats telemetry into executive CSV/spreadsheet reports
+│   │   │
+│   │   ├── rewards/                # Real-World Corporate Rewards
+│   │   │   ├── corporate_loot_box.ex # Ash Resource for real-world pay raises, PTO, etc.
+│   │   │   └── payout_handler.ex   # HR/Payroll webhook dispatch system
+│   │   │
+│   │   ├── systems/                # Runtime Item Shops & Merchants
+│   │   │   ├── apothecary.ex       # Consumable tincture and elixir marketplace
+│   │   │   └── local_host_vendor.ex# Safety-zone hardware and gear vendor shop
+│   │   │
+│   │   └── workers/                # Oban Background Jobs & Cron Workers
+│   │       ├── language_rank_scanner_worker.ex # Monthly Octoverse trend scanner
+│   │       ├── rank_rebalancer.ex  # Seasonal MVP reward distributor & tenant cron worker
+│   │       └── rank_rebalancer.ex  # Monthly guild maintenance rebalancer
+│   │
+│   └── code_mantra_web/            # Phoenix Web Layer (Endpoints, LiveViews, Channels)
+└── priv/                           # Static assets, migrations, and compiled builds

@@ -16,7 +16,10 @@ defmodule CodeMantra.Actors.DungeonOrchestrator do
   end
 
   def deploy_class_shield(repo_id, defender_id, target_teammate_id, class_type) do
-    GenServer.call(__MODULE__, {:class_shield, repo_id, defender_id, target_teammate_id, class_type})
+    GenServer.call(
+      __MODULE__,
+      {:class_shield, repo_id, defender_id, target_teammate_id, class_type}
+    )
   end
 
   @impl true
@@ -27,10 +30,20 @@ defmodule CodeMantra.Actors.DungeonOrchestrator do
 
   @impl true
   def handle_cast({:remote_push_detected, repo_id, pusher_id, commit_payload}, state) do
-    unless commit_payload.build_successful do
-      severity = length(commit_payload["files_changed"] || [])
+    # Handle atom or string keys cleanly without invalid syntax
+    build_successful =
+      case Map.fetch(commit_payload, :build_successful) do
+        {:ok, val} -> val
+        :error -> Map.get(commit_payload, "build_successful", true)
+      end
 
-      Logger.error("🚨 [GIT FRACTURE]: Corrupted push detected in #{repo_id} by #{pusher_id}! Severity: #{severity}")
+    unless build_successful do
+      files_changed = Map.get(commit_payload, :files_changed) || Map.get(commit_payload, "files_changed", [])
+      severity = length(files_changed)
+
+      Logger.error(
+        "🚨 [GIT FRACTURE]: Corrupted push detected in #{repo_id} by #{pusher_id}! Severity: #{severity}"
+      )
 
       CodeMantraWeb.Endpoint.broadcast!("repo_dungeon:#{repo_id}", "git_fracture", %{
         hazard_origin: pusher_id,
@@ -44,13 +57,18 @@ defmodule CodeMantra.Actors.DungeonOrchestrator do
   end
 
   @impl true
-  def handle_call({:class_shield, repo_id, defender_id, target_teammate_id, class_type}, _from, state) do
-    shield_type = case class_type do
-      :oop -> "Encapsulation Wall"
-      :functional -> "Pure Function Rollback Shield"
-      :low_level -> "Register Memory Barrier"
-      _ -> "Basic Code Shield"
-    end
+  def handle_call(
+        {:class_shield, repo_id, defender_id, target_teammate_id, class_type},
+        _from,
+        state
+      ) do
+    shield_type =
+      case class_type do
+        :oop -> "Encapsulation Wall"
+        :functional -> "Pure Function Rollback Shield"
+        :low_level -> "Register Memory Barrier"
+        _ -> "Basic Code Shield"
+      end
 
     CodeMantraWeb.Endpoint.broadcast!("repo_dungeon:#{repo_id}", "boss_aggro_shielded", %{
       defender: defender_id,
@@ -58,7 +76,10 @@ defmodule CodeMantra.Actors.DungeonOrchestrator do
       shield_type: shield_type
     })
 
-    Logger.info("🛡️ [RAID] #{defender_id} (#{class_type}) deployed #{shield_type} for #{target_teammate_id}!")
+    Logger.info(
+      "🛡️ [RAID] #{defender_id} (#{class_type}) deployed #{shield_type} for #{target_teammate_id}!"
+    )
+
     {:reply, {:ok, shield_type}, state}
   end
 end
