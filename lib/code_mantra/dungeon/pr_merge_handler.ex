@@ -3,6 +3,7 @@ defmodule CodeMantra.Dungeon.PRMergeHandler do
   Processes Pull Request merge events. Calculates ascension loot, distributes XP/Gold
   to realm developers, updates World Tree height, and broadcasts victory notifications.
   """
+  require Logger
 
   alias CodeMantra.Dungeon.BranchDungeonActor
   alias CodeMantra.Gamification
@@ -25,6 +26,7 @@ defmodule CodeMantra.Dungeon.PRMergeHandler do
          {:ok, _} <- distribute_loot(realm_id, loot_payload),
          {:ok, new_height} <-
            advance_world_tree(realm_id, target_branch, loot_payload.ascension_xp) do
+
       # Broadcast global ascension event across the PubSub topic
       broadcast_ascension_victory(realm_id, %{
         source_branch: source_branch,
@@ -38,12 +40,14 @@ defmodule CodeMantra.Dungeon.PRMergeHandler do
       # Clean up or archive the feature branch dungeon actor
       archive_branch_dungeon(realm_id, source_branch)
 
+      Logger.info("🌟 [PR_MERGE] Branch '#{source_branch}' successfully merged into '#{target_branch}' for realm #{realm_id}!")
+
       {:ok,
-       %{
-         status: :ascended,
-         new_world_height: new_height,
-         distributed_loot: loot_payload
-       }}
+        %{
+          status: :ascended,
+          new_world_height: new_height,
+          distributed_loot: loot_payload
+        }}
     end
   end
 
@@ -94,9 +98,10 @@ defmodule CodeMantra.Dungeon.PRMergeHandler do
     }
   end
 
-  defp distribute_loot(realm_id, %{contributors: contributors, total_xp: xp, total_gold: gold}) do
-    per_contributor_xp = max(1, div(xp, Enum.count(contributors)))
-    per_contributor_gold = max(1, div(gold, Enum.count(contributors)))
+  defp distribute_loot(_realm_id, %{contributors: contributors, total_xp: xp, total_gold: gold}) do
+    contributor_count = max(1, Enum.count(contributors))
+    per_contributor_xp = max(1, div(xp, contributor_count))
+    per_contributor_gold = max(1, div(gold, contributor_count))
 
     Enum.each(contributors, fn user_id ->
       # Grant XP and Gold Shards via Ash changesets or domain actions

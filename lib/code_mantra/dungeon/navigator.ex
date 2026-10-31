@@ -9,7 +9,7 @@ defmodule CodeMantra.Dungeon.Navigator do
   @type position :: {integer(), integer()}
 
   @spec move(Room.t(), position(), direction()) :: {:ok, position(), atom()} | {:error, atom()}
-  def move(%Room{width: w, height: h, tiles: tiles} = _room, {x, y} = _current_pos, direction) do
+  def move(%Room{tiles: tiles} = _room, {x, y} = _current_pos, direction) do
     {dx, dy} = delta(direction)
     target = {x + dx, y + dy}
 

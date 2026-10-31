@@ -10,22 +10,22 @@ defmodule CodeMantra.Dungeon.EditorBuffs do
       :neovim ->
         %{
           base_stats
-          | attack_speed_multiplier: base_stats.attack_speed_multiplier * 1.25,
-            perk: :vim_motion_combo
+        | attack_speed_multiplier: base_stats.attack_speed_multiplier * 1.25,
+          perk: :vim_motion_combo
         }
 
       :vscode ->
         %{
           base_stats
-          | debuff_resistance: base_stats.debuff_resistance + 0.15,
-            perk: :modular_extension_slots
+        | debuff_resistance: base_stats.debuff_resistance + 0.15,
+          perk: :modular_extension_slots
         }
 
       :jetbrains ->
         %{
           base_stats
-          | shield_capacity: base_stats.shield_capacity * 1.40,
-            perk: :enterprise_refactor_shockwave
+        | shield_capacity: base_stats.shield_capacity * 1.40,
+          perk: :enterprise_refactor_shockwave
         }
 
       :emacs ->

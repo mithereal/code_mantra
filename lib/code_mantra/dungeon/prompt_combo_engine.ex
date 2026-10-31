@@ -5,12 +5,12 @@ defmodule CodeMantra.Dungeon.PromptComboEngine do
   """
 
   @type spell_result :: %{
-          spell_name: String.t(),
-          element: atom(),
-          base_damage: integer(),
-          buff_type: atom() | nil,
-          multiplier: float()
-        }
+                          spell_name: String.t(),
+                          element: atom(),
+                          base_damage: integer(),
+                          buff_type: atom() | nil,
+                          multiplier: float()
+                        }
 
   @doc "Parses the AI prompt text and computes the combat combo effect"
   @spec process_prompt(String.t(), integer()) :: {:ok, spell_result()}
@@ -39,12 +39,12 @@ defmodule CodeMantra.Dungeon.PromptComboEngine do
     final_damage = round(base_dmg * level_multiplier)
 
     {:ok,
-     %{
-       spell_name: spell,
-       element: element,
-       base_damage: final_damage,
-       buff_type: buff,
-       multiplier: level_multiplier
-     }}
+      %{
+        spell_name: spell,
+        element: element,
+        base_damage: final_damage,
+        buff_type: buff,
+        multiplier: level_multiplier
+      }}
   end
 end

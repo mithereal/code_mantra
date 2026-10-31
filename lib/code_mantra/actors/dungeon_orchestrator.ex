@@ -1,36 +1,49 @@
-defmodule CodeMantra.Actors.DungeonOrchestrator do
+defmodule CodeMantra.Dungeon.DungeonOrchestrator do
   @moduledoc """
-  Actor 5: DUNGEON ORCHESTRATOR (Monorepo Raid Engine).
-  Coordinates real-time multiplayer dungeons, branch-shifting hazards,
-  and shared boss aggro across team repositories.
+  Manages real-time multiplayer dungeons, branch-shifting hazards,
+  and shared boss aggro per repository realm using a Registry-backed GenServer model.
   """
-  use GenServer
+  use GenServer, restart: :transient
   require Logger
 
-  def start_link(_opts) do
-    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+  defstruct [:repo_id, active_shields: %{}, active_hazards: []]
+
+  # --- Client API ---
+
+  def start_link(repo_id) do
+    GenServer.start_link(__MODULE__, repo_id, name: via_tuple(repo_id))
   end
 
+  def via_tuple(repo_id) do
+    {:via, Registry, {CodeMantra.DungeonRegistry, "dungeon:#{repo_id}"}}
+  end
+
+  @doc """
+  Ensures a dungeon orchestrator process is running for the given repo, then processes a push.
+  """
   def process_remote_push(repo_id, pusher_id, commit_payload) do
-    GenServer.cast(__MODULE__, {:remote_push_detected, repo_id, pusher_id, commit_payload})
+    ensure_started(repo_id)
+    GenServer.cast(via_tuple(repo_id), {:remote_push_detected, pusher_id, commit_payload})
   end
 
+  @doc """
+  Deploys a class-specific defensive shield within the repo's active dungeon.
+  """
   def deploy_class_shield(repo_id, defender_id, target_teammate_id, class_type) do
-    GenServer.call(
-      __MODULE__,
-      {:class_shield, repo_id, defender_id, target_teammate_id, class_type}
-    )
+    ensure_started(repo_id)
+    GenServer.call(via_tuple(repo_id), {:class_shield, defender_id, target_teammate_id, class_type})
+  end
+
+  # --- Server Callbacks ---
+
+  @impl true
+  def init(repo_id) do
+    Logger.info("[DUNGEON_ORCHESTRATOR] Initialized dungeon process for repository: #{repo_id}")
+    {:ok, %__MODULE__{repo_id: repo_id}}
   end
 
   @impl true
-  def init(state) do
-    Logger.info("[DUNGEON_ORCHESTRATOR] Monorepo Raid Coordinator initialized.")
-    {:ok, state}
-  end
-
-  @impl true
-  def handle_cast({:remote_push_detected, repo_id, pusher_id, commit_payload}, state) do
-    # Handle atom or string keys cleanly without invalid syntax
+  def handle_cast({:remote_push_detected, pusher_id, commit_payload}, state) do
     build_successful =
       case Map.fetch(commit_payload, :build_successful) do
         {:ok, val} -> val
@@ -42,10 +55,10 @@ defmodule CodeMantra.Actors.DungeonOrchestrator do
       severity = length(files_changed)
 
       Logger.error(
-        "🚨 [GIT FRACTURE]: Corrupted push detected in #{repo_id} by #{pusher_id}! Severity: #{severity}"
+        "🚨 [GIT FRACTURE]: Corrupted push detected in #{state.repo_id} by #{pusher_id}! Severity: #{severity}"
       )
 
-      CodeMantraWeb.Endpoint.broadcast!("repo_dungeon:#{repo_id}", "git_fracture", %{
+      CodeMantraWeb.Endpoint.broadcast!("repo_dungeon:#{state.repo_id}", "git_fracture", %{
         hazard_origin: pusher_id,
         severity: severity,
         burning_rows: true,
@@ -58,7 +71,7 @@ defmodule CodeMantra.Actors.DungeonOrchestrator do
 
   @impl true
   def handle_call(
-        {:class_shield, repo_id, defender_id, target_teammate_id, class_type},
+        {:class_shield, defender_id, target_teammate_id, class_type},
         _from,
         state
       ) do
@@ -70,16 +83,40 @@ defmodule CodeMantra.Actors.DungeonOrchestrator do
         _ -> "Basic Code Shield"
       end
 
-    CodeMantraWeb.Endpoint.broadcast!("repo_dungeon:#{repo_id}", "boss_aggro_shielded", %{
+    updated_shields = Map.put(state.active_shields, defender_id, %{
+      target: target_teammate_id,
+      type: shield_type,
+      applied_at: DateTime.utc_now()
+    })
+
+    CodeMantraWeb.Endpoint.broadcast!("repo_dungeon:#{state.repo_id}", "boss_aggro_shielded", %{
       defender: defender_id,
       protected_player: target_teammate_id,
       shield_type: shield_type
     })
 
     Logger.info(
-      "🛡️ [RAID] #{defender_id} (#{class_type}) deployed #{shield_type} for #{target_teammate_id}!"
+      "🛡️ [RAID] #{defender_id} (#{class_type}) deployed #{shield_type} for #{target_teammate_id} in #{state.repo_id}!"
     )
 
-    {:reply, {:ok, shield_type}, state}
+    {:reply, {:ok, shield_type}, %{state | active_shields: updated_shields}}
+  end
+
+  # --- Internal Helpers ---
+
+  defp ensure_started(repo_id) do
+    case Registry.lookup(CodeMantra.DungeonRegistry, "dungeon:#{repo_id}") do
+      [{pid, _}] ->
+        pid
+
+      [] ->
+        case DynamicSupervisor.start_child(
+               CodeMantra.BossSupervisor,
+               {__MODULE__, repo_id}
+             ) do
+          {:ok, pid} -> pid
+          {:error, {:already_started, pid}} -> pid
+        end
+    end
   end
 end

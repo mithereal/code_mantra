@@ -5,12 +5,12 @@ defmodule CodeMantra.Dungeon.Room do
 
   @type tile_type :: :wall | :floor | :obstacle | :chest
   @type t :: %__MODULE__{
-          width: non_neg_integer(),
-          height: non_neg_integer(),
-          depth: non_neg_integer(),
-          tiles: %{{non_neg_integer(), non_neg_integer()} => tile_type()},
-          monsters: list(map())
-        }
+               width: non_neg_integer(),
+               height: non_neg_integer(),
+               depth: non_neg_integer(),
+               tiles: %{{non_neg_integer(), non_neg_integer()} => tile_type()},
+               monsters: list(map())
+             }
 
   defstruct [:width, :height, :depth, :tiles, :monsters]
 
@@ -56,8 +56,8 @@ defmodule CodeMantra.Dungeon.Room do
       %{
         id: id,
         type: if(:rand.uniform() > 0.5, do: :slime, else: :skeleton),
-        x: _rx = _rand_coord(width - 2),
-        y: _ry = _rand_coord(height - 2),
+        x: _rand_coord(width - 2),
+        y: _rand_coord(height - 2),
         hp: 50 + depth * 10
       }
     end)

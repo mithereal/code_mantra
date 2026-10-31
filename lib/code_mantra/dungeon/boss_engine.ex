@@ -5,15 +5,15 @@ defmodule CodeMantra.Dungeon.BossEngine do
   """
 
   @type boss_encounter :: %{
-          boss_id: String.t(),
-          boss_name: String.t(),
-          total_hp: integer(),
-          current_hp: integer(),
-          armor: integer(),
-          phase: :phase_1_overmind | :phase_2_refactor_adds | :phase_3_merge_ready,
-          is_enraged: boolean(),
-          rewards: map()
-        }
+                            boss_id: String.t(),
+                            boss_name: String.t(),
+                            total_hp: integer(),
+                            current_hp: integer(),
+                            armor: integer(),
+                            phase: :phase_1_overmind | :phase_2_refactor_adds | :phase_3_merge_ready,
+                            is_enraged: boolean(),
+                            rewards: map()
+                          }
 
   @doc """
   Constructs a Boss Encounter struct from a parsed GitHub Pull Request webhook payload.

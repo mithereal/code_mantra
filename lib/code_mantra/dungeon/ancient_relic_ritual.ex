@@ -14,7 +14,7 @@ defmodule CodeMantra.Dungeon.AncientRelicRitual do
   Invokes an ancient ritual for a given relic language, evaluating test coverage
   against corruption hazards to determine whether a Blessing or a Curse is bestowed.
   """
-  @spec invoke_ritual(atom(), integer(), float()) :: {:blessing, map()} | {:curse, map()}
+  @spec invoke_ritual(atom(), integer(), float()) :: {:blessing, map()} | {:curse, map()} | {:error, term()}
   def invoke_ritual(relic_type, lines_written, test_coverage_pct) do
     case Map.get(@relics, relic_type) do
       nil ->
@@ -26,25 +26,25 @@ defmodule CodeMantra.Dungeon.AncientRelicRitual do
           xp_gain = round(lines_written * relic.multiplier * 25)
 
           {:blessing,
-           %{
-             relic: relic.name,
-             xp_awarded: xp_gain,
-             team_flow_buff: relic.multiplier,
-             message:
-               "The Elder Beings accept your sacrifice. The realm thrives on ancient wisdom."
-           }}
+            %{
+              relic: relic.name,
+              xp_awarded: xp_gain,
+              team_flow_buff: relic.multiplier,
+              message:
+                "The Elder Beings accept your sacrifice. The realm thrives on ancient wisdom."
+            }}
         else
           # Ritual Corrupted: Syntax anomaly triggers a technical debt curse
           penalty_points = round(lines_written * 15)
 
           {:curse,
-           %{
-             relic: relic.name,
-             corruption_penalty: penalty_points,
-             status: :syntax_anomaly_quarantine,
-             message:
-               "Inadequate test coverage has awakened a Syntax Corruption Hazard! Code quarantined."
-           }}
+            %{
+              relic: relic.name,
+              corruption_penalty: penalty_points,
+              status: :syntax_anomaly_quarantine,
+              message:
+                "Inadequate test coverage has awakened a Syntax Corruption Hazard! Code quarantined."
+            }}
         end
     end
   end

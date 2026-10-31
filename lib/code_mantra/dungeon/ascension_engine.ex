@@ -4,8 +4,6 @@ defmodule CodeMantra.Dungeon.AscensionEngine do
   upon successful branch merges and boss defeats.
   """
 
-  alias CodeMantra.Dungeon.BranchDungeonActor
-
   @spec ascend_realm(String.t(), map()) :: {:ok, map()} | {:error, term()}
   def ascend_realm(realm_id, ascension_payload) do
     %{

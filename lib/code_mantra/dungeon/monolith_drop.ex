@@ -4,7 +4,8 @@ defmodule CodeMantra.Dungeon.MonolithDrop do
   Tracks repository technical debt across all realms and spawns World Boss
   Merge Conflicts when corruption reaches critical mass.
   """
-  use GenServer
+  use GenServer, restart: :permanent
+  require Logger
   alias CodeMantra.Dungeon.BossEncounterEngine
 
   # Check telemetry every 15 seconds
@@ -42,6 +43,7 @@ defmodule CodeMantra.Dungeon.MonolithDrop do
       monitored_realms: %{}
     }
 
+    Logger.info("🌋 [MONOLITH_DROP] Global technical debt monitor active.")
     {:ok, state}
   end
 
@@ -70,7 +72,6 @@ defmodule CodeMantra.Dungeon.MonolithDrop do
   def handle_info(:sweep_debt, state) do
     updated_realms =
       Enum.into(state.monitored_realms, %{}, fn {realm_id, realm_data} ->
-        # Simulate background accumulation or check live git conflict counters
         current_score = realm_data.debt_score
 
         if current_score >= @debt_threshold and is_nil(realm_data.active_boss) do
@@ -78,7 +79,10 @@ defmodule CodeMantra.Dungeon.MonolithDrop do
           boss_name = "WORLD-BOSS-MERGE-CONFLICT-#{:rand.uniform(9999)}"
           initial_hp = 10_000
 
-          case BossEncounterEngine.start_link({realm_id, boss_name, initial_hp}) do
+          case DynamicSupervisor.start_child(
+                 CodeMantra.BossSupervisor,
+                 {BossEncounterEngine, {realm_id, boss_name, initial_hp}}
+               ) do
             {:ok, _pid} ->
               broadcast_world_boss_spawn(realm_id, boss_name, initial_hp)
               {realm_id, %{realm_data | active_boss: boss_name}}
@@ -86,7 +90,8 @@ defmodule CodeMantra.Dungeon.MonolithDrop do
             {:error, {:already_started, _pid}} ->
               {realm_id, realm_data}
 
-            _ ->
+            error ->
+              Logger.error("Failed to spawn World Boss for realm #{realm_id}: #{inspect(error)}")
               {realm_id, realm_data}
           end
         else
@@ -100,15 +105,16 @@ defmodule CodeMantra.Dungeon.MonolithDrop do
   # --- Helper Broadcasts ---
 
   defp broadcast_world_boss_spawn(realm_id, boss_name, hp) do
+    Logger.warning("🚨 [WORLD BOSS SPAWN]: #{boss_name} appeared in realm #{realm_id}!")
     Phoenix.PubSub.broadcast(
       CodeMantra.PubSub,
       "realm:#{realm_id}",
       {:world_boss_spawned,
-       %{
-         boss_name: boss_name,
-         max_hp: hp,
-         warning: "CRITICAL TECHNICAL MASS REACHED! MERGE CONFLICT OVERLORD AWAKENS!"
-       }}
+        %{
+          boss_name: boss_name,
+          max_hp: hp,
+          warning: "CRITICAL TECHNICAL MASS REACHED! MERGE CONFLICT OVERLORD AWAKENS!"
+        }}
     )
   end
 end

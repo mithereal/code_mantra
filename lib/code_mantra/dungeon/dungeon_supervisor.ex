@@ -1,6 +1,6 @@
 defmodule CodeMantra.Dungeon.DungeonSupervisor do
   @moduledoc """
-  DynamicSupervisor managing active BranchDungeonActors and BossEncounterEngines.
+  DynamicSupervisor managing active dungeon actors and boss encounter engines.
   Automatically restarts crashed actors and rehydrates dungeon states.
   """
   use DynamicSupervisor
@@ -17,6 +17,12 @@ defmodule CodeMantra.Dungeon.DungeonSupervisor do
   @doc "Spawns or recovers a branch dungeon actor"
   def start_dungeon(realm_id, branch_name) do
     spec = {CodeMantra.Dungeon.BranchDungeonActor, {realm_id, branch_name}}
+    DynamicSupervisor.start_child(__MODULE__, spec)
+  end
+
+  @doc "Spawns a dynamic boss encounter engine for a realm/repo"
+  def start_boss_encounter(realm_id, boss_name, initial_hp) do
+    spec = {CodeMantra.Dungeon.BossEncounterEngine, {realm_id, boss_name, initial_hp}}
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
 end

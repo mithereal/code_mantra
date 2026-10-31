@@ -2,7 +2,7 @@ defmodule CodeMantra.Application do
   @moduledoc """
   Master Application Supervision Tree for Code::Mantra.
   Boots the Cloud Core Infrastructure, Phoenix PubSub/Channels,
-  and isolated Actor processes in exact sequence.
+  and dynamic dungeon/realm supervision workers in correct sequence.
   """
   use Application
   require Logger
@@ -10,43 +10,28 @@ defmodule CodeMantra.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # 1. Database & Telemetry Repositories
+      # 1. Database & Persistence
       CodeMantra.Repo,
 
-      # 2. Phoenix PubSub Grid & Endpoint Infrastructure
+      # 2. PubSub Grid & Endpoint Infrastructure
       {Phoenix.PubSub, name: CodeMantra.PubSub},
       CodeMantraWeb.Endpoint,
 
-      # 3. Core Engine Actor Processes
-      # Actor 1: IDE WebSocket Gateway
-      CodeMantra.Actors.ClientSocket,
-      # Actor 2: Polyglot Evaluation & Procedural Synthesis
-      CodeMantra.Actors.EvaluationDaemon,
-      # Actor 3: Shannon Entropy & XP/Gold Balancer
-      CodeMantra.Actors.ProgressionBalancer,
-      # Actor 4: PostgreSQL Checkpoints & Runic Archive
-      CodeMantra.Actors.PersistenceDaemon,
-      # Actor 5: Monorepo Raid Coordinator
-      CodeMantra.Actors.DungeonOrchestrator,
-      # Actor 6: World Boss Event Daemon
-      CodeMantra.Actors.MonolithDrop,
-      # Stream Frame Animator
-      CodeMantra.Actors.StreamAnimator,
-      # Corporate Git Fracture Monitor
-      CodeMantra.Actors.MonorepoTracker,
-      # Turn-Based Combat State Engine
-      CodeMantra.Actors.BossEncounterEngine,
-      # Merge Conflict Encounter Handler
-      CodeMantra.Actors.CombatOrchestrator,
-      {Registry,
-       keys: :unique, name: CodeMantra.RepoRegistry, partitions: System.schedulers_online()},
-      {Phoenix.PubSub, name: CodeMantra.PubSub, adapter: Phoenix.PubSub.PG2},
-      CodeMantra.Dungeon.MonolithDrop
+      # 3. Dynamic Process Registries
+      {Registry, keys: :unique, name: CodeMantra.DungeonRegistry},
+      {Registry, keys: :unique, name: CodeMantra.RepoRegistry, partitions: System.schedulers_online()},
+
+      # 4. Dynamic Supervisors for Ephemeral Realm / Boss / Dungeon Processes
+      {DynamicSupervisor, name: CodeMantra.BossSupervisor, strategy: :one_for_one}
+
+      # Note: Ephemeral actors like DungeonOrchestrator and BossEncounterEngine
+      # are spawned dynamically on-demand via CodeMantra.BossSupervisor using
+      # the Registry pattern rather than running as static global singletons.
     ]
 
     opts = [strategy: :one_for_one, name: CodeMantra.Supervisor]
 
-    Logger.info("🛡️ [CODE::MANTRA] Cloud Core Infrastructure Initialized. All Actors Operational.")
+    Logger.info("🛡️ [CODE::MANTRA] Cloud Core Infrastructure Initialized. All Supervisors Operational.")
     Supervisor.start_link(children, opts)
   end
 end

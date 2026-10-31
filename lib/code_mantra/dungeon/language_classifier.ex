@@ -110,12 +110,10 @@ defmodule CodeMantra.Dungeon.LanguageClassifier do
     {:reply, res, state}
   end
 
-  # Add this function to CodeMantra.Dungeon.LanguageClassifier
   def update_top_ranks(new_rank_list) do
     GenServer.cast(__MODULE__, {:update_ranks, new_rank_list})
   end
 
-  # Add this handle_cast callback inside the GenServer module
   @impl true
   def handle_cast({:update_ranks, new_rank_list}, state) do
     # Updates the cached top 20 mainstream language order

@@ -5,8 +5,8 @@ defmodule CodeMantra.Dungeon.Pathfinder do
   alias CodeMantra.Dungeon.Room
 
   @spec find_path(Room.t(), {integer(), integer()}, {integer(), integer()}) :: [
-          {integer(), integer()}
-        ]
+                                                                                 {integer(), integer()}
+                                                                               ]
   def find_path(%Room{tiles: tiles, width: w, height: h}, start, goal) do
     # Priority queue storing {f_score, g_score, current_pos, path}
     open_set = [{manhattan(start, goal), 0, start, [start]}]
@@ -48,7 +48,7 @@ defmodule CodeMantra.Dungeon.Pathfinder do
     |> Enum.map(fn {dx, dy} -> {x + dx, y + dy} end)
     |> Enum.filter(fn {nx, ny} ->
       nx >= 0 and ny >= 0 and nx < w and ny < h and
-        Map.get(tiles, {nx, ny}) in [:floor, :chest]
+      Map.get(tiles, {nx, ny}) in [:floor, :chest]
     end)
   end
 
